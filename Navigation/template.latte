@@ -1,0 +1,59 @@
+{if $type == "path"}
+
+	{var items=>$control->getItems()}
+
+	{foreach $items as $item}
+		{if !$iterator->isFirst()} » {/if}
+		<span class="item"><a href="{$item["url"]}">{$item["name"]}</a></span>
+	{/foreach}
+
+{else}
+	{*cache $presenter->context->httpRequest->url->path, $type, $startDepth, $maxDepth, $followActive, tags => ['App\NavigationModule']*}
+
+	{var items=>$control->getItems()}
+	{var sub=>0}
+		
+	{block #menu}
+	<ul>
+		{foreach $items as $item}
+			
+			{if $presenter->isUrlCurrent($item->getLink($presenter))}
+				{var ok=>true}
+				{if $sub}
+					{var item->parent->active2 => true}
+				{/if}
+			{else}
+				{var ok=>false}
+			{/if}
+		
+			{capture $m}
+			{if $item->childrens->count() > 0}
+				{include #menu, "items"=>$item->childrens, "sub"=>($sub+1)}
+			{/if}
+			{/capture}
+				
+			{if isset($item->active2)}
+				{var ok=>true}
+			{/if}
+
+		
+			{if $sub < $startDepth}
+				{if $ok || !$followActive}{!$m}{/if}
+			{else}
+			<li {if $ok}class="active"{/if}>
+				{if $ok}<span>{/if}
+					<a href="{$item->getLink($presenter)}" {if $presenter->isUrlCurrent($item->getLink($presenter)) || $ok}class="active"{/if}>{$item->name}</a>
+				{if $ok}</span>{/if}
+				
+				{if ($sub < ($startDepth + $maxDepth - 1)) && ($ok || !$followActive)}{!$m}{/if}
+			</li>
+			{/if}
+			
+			
+		{/foreach}
+	</ul>
+	{/block}
+
+	{*/cache*}
+{/if}
+
