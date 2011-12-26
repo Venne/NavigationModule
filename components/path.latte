@@ -1,0 +1,6 @@
+{var items=>$control->getPaths()}
+
+{foreach $items as $item}
+	{if !$iterator->isFirst()} » {/if}
+	<span class="item"><a href="{$item["url"]}">{$item["name"]}</a></span>
+{/foreach}

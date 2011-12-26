@@ -133,22 +133,33 @@ class DefaultPresenter extends \Venne\Application\UI\AdminPresenter {
 	public function createComponentFormMenu($name)
 	{
 		$repository = $this->context->navigationRepository;
-		$em = $this->context->doctrineContainer->entityManager;
-		$mapper = $this->context->doctrineContainer->entityFormMapper;
+		$em = $this->context->entityManager;
+		$mapper = $this->context->entityFormMapper;
 		$entity = $repository->createNew();
 		
-		$form = new \App\NavigationModule\NavigationForm($entity, $mapper, $em, $this->context->scannerService);
+		$form = $this->context->createNavigationFormControl($entity);
 		$form->setSuccessLink("default");
 		$form->setFlashMessage("Navigation has been created");
+		$form->onSave[] = function($form) use ($repository){
+			$repository->save($form->entity);
+		};
 		return $form;
 	}
 
 
 	public function createComponentFormMenuEdit($name)
 	{
-		$form = new \App\NavigationModule\NavigationForm($this->context->scannerService, $this->context->navigationService->repository->find($this->getParam("id")));
+		$repository = $this->context->navigationRepository;
+		$em = $this->context->entityManager;
+		$mapper = $this->context->entityFormMapper;
+		$entity = $repository->find($this->getParam("id"));
+		
+		$form = $this->context->createNavigationFormControl($entity);
 		$form->setSuccessLink("this");
 		$form->setFlashMessage("Navigation has been updated");
+		$form->onSave[] = function($form) use ($repository){
+			$repository->update($form->entity);
+		};
 		return $form;
 	}
 

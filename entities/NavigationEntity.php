@@ -12,7 +12,7 @@
 namespace App\NavigationModule;
 
 use Venne\ORM\Column;
-use Venne\ContentExtension\ContentExtensionEntity;
+use Venne\Doctrine\ORM\BaseEntity;
 use App\CoreModule\PageEntity;
 
 /**
@@ -25,16 +25,31 @@ use App\CoreModule\PageEntity;
  * @property bool $active
  * @property string $name
  */
-class NavigationEntity extends ContentExtensionEntity {
+class NavigationEntity extends BaseEntity {
+
+
+	const TYPE_URL = "url";
+	const TYPE_DIR = "dir";
+	const TYPE_PAGE = "page";
+	const TYPE_LINK = "link";
+
+
+	/** @var string */
+	protected $_link;
+
+	/** @var bool */
+	protected $_active;
 
 
 
-	public function __construct(PageEntity $page, $name)
+	public function __construct($name = "")
 	{
-		parent::__construct($page);
 		$this->name = $name;
 		$this->active = true;
 		$this->order = 0;
+		$this->url = "";
+		$this->link = "";
+		$this->type = self::TYPE_LINK;
 		$this->childrens = new \Doctrine\Common\Collections\ArrayCollection();
 	}
 
@@ -64,12 +79,27 @@ class NavigationEntity extends ContentExtensionEntity {
 	/**
 	 * @ManyToOne(targetEntity="navigationEntity", inversedBy="id")
 	 * @JoinColumn(name="navigation_id", referencedColumnName="id", onDelete="CASCADE")
-	 * @OrderBy({"order" = "ASC"})
 	 */
 	protected $parent;
 
 	/** @Column(type="string") */
 	protected $name;
+
+	/** @Column(type="string") */
+	protected $type;
+
+	/** @Column(type="string") */
+	protected $link;
+
+	/** @Column(type="string") */
+	protected $url;
+
+	/**
+	 * @var \App\CoreModule\PageEntity
+	 * @ManyToOne(targetEntity="\App\CoreModule\PageEntity")
+	 * @JoinColumn(name="page_id", referencedColumnName="id", onDelete="CASCADE")
+	 */
+	protected $page;
 
 
 
@@ -167,16 +197,111 @@ class NavigationEntity extends ContentExtensionEntity {
 
 
 
-	public function getLink($presenter)
+	public function getPage()
 	{
-		$presenterName = ":" . $this->page->type;
-	
-		if ($presenter->context->params["website"]["multilang"]) {
-			return $presenter->link($presenterName, array("url" => $this->page->getUrl(), "lang" => $this->page->language[0]->alias));
-		}
+		return $this->page;
+	}
 
-		
-		return $presenter->link($presenterName, array("url" => $this->page->getUrl(), "lang"=>NULL));
+
+
+	public function setPage($page)
+	{
+		$this->page = $page;
+	}
+
+
+
+	public function getType()
+	{
+		return $this->type;
+	}
+
+
+
+	public function setType($type)
+	{
+		$this->type = $type;
+	}
+
+
+
+	public function getLink()
+	{
+		return $this->link;
+	}
+
+
+
+	public function setLink($link)
+	{
+		$this->link = $link;
+	}
+
+
+
+	public function getUrl()
+	{
+		return $this->url;
+	}
+
+
+
+	public function setUrl($url)
+	{
+		$this->url = $url;
+	}
+
+
+
+	/**
+	 * Is link active
+	 * @param \Nette\Application\UI\Presenter $presenter
+	 * @return bool
+	 */
+	public function isActive(\Nette\Application\UI\Presenter $presenter)
+	{
+		if ($this->_active === NULL) {
+			if ($presenter->isUrlCurrent($this->makeLink($presenter))) {
+				$this->_active = true;
+			} else {
+				foreach ($this->childrens as $item) {
+					if ($item->isActive($presenter)) {
+						$this->_active = true;
+						break;
+					}
+				}
+				$this->_active = $this->_active === NULL ? false : true;
+			}
+		}
+		return $this->_active;
+	}
+
+
+
+	/**
+	 * Make link
+	 * @param \Nette\Application\UI\Presenter $presenter
+	 * @return type 
+	 */
+	public function makeLink(\Nette\Application\UI\Presenter $presenter)
+	{
+		if (!$this->_link) {
+			if ($this->type == self::TYPE_URL) {
+				$this->_link = $this->url;
+			} else if ($this->type == self::TYPE_DIR) {
+				$item = $this->childrens[0];
+				if ($item) {
+					$this->_link = $item->makeLink($presenter);
+				} else {
+					$this->_link = $presenter->template->basePath;
+				}
+			} else if ($this->type == self::TYPE_PAGE) {
+				$this->_link = $presenter->link(":" . $this->page->type, array("url" => $this->page->url));
+			} else if ($this->type == self::TYPE_LINK) {
+				$this->_link = $presenter->link($this->link);
+			}
+		}
+		return $this->_link;
 	}
 
 }

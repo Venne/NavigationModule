@@ -29,7 +29,7 @@ class NavigationService extends Object {
 	/** @var \Venne\Modules\Navigation */
 	protected $frontRootItems;
 
-	/** @var \Venne\DI\Container */
+	/** @var \$container->parameters\DI\Container */
 	protected $context;
 
 	/** @var \Doctrine\ORM\EntityManager */
@@ -39,11 +39,11 @@ class NavigationService extends Object {
 
 	/**
 	 * @inject(context, entityManager)
-	 * @param \Venne\DI\Container $context
+	 * @param \$container->parameters\DI\Container $context
 	 * @param type $moduleName
 	 * @param \Doctrine\ORM\EntityManager $entityManager 
 	 */
-	public function __construct(\Venne\DI\Container $context, $moduleName, \Doctrine\ORM\EntityManager $entityManager)
+	public function __construct(\Nette\DI\Container $context, $moduleName, \Doctrine\ORM\EntityManager $entityManager)
 	{
 		$this->context = $context;
 		$this->entityManager = $entityManager;

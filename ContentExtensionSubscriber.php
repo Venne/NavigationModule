@@ -65,16 +65,18 @@ class ContentExtensionSubscriber implements EventSubscriber {
 
 		if (!$menu) {
 			if ($values["use"]) {
-				$entity = $this->repository->createNew(array($page, $values["name"]));
+				$entity = $this->repository->createNew(array($values["name"]));
+				$entity->type = NavigationEntity::TYPE_PAGE;
 				$entity->name = $values["name"];
-				$entity->parent = $values["navigation_id"];
+				$entity->parent = $this->repository->find($values["navigation_id"]);
+				$entity->page = $page;
 				$this->repository->save($entity);
 			}
 		} else {
 			if ($values["use"]) {
 				$entity = $this->repository->findOneBy(array("page" => $page->id));
 				$entity->name = $values["name"];
-				$entity->parent = $values["navigation_id"];
+				$entity->parent = $this->repository->find($values["navigation_id"]);
 				$this->repository->update($entity);
 			} else {
 				$entity = $this->repository->findOneBy(array("page" => $page->id));
@@ -89,11 +91,10 @@ class ContentExtensionSubscriber implements EventSubscriber {
 	{
 		$form = $args->form;
 
-		$form->addGroup("Navigation settings")->setOption('container', \Nette\Utils\Html::el('fieldset')->class('collapsible collapsed'));
-		$container = $form->addContentExtensionContainer("navigation");
+		$container = $form->addContentExtensionContainer("navigation", "Navigation settings");
 
 		$container->addCheckbox("use", "Create navigation item");
-		$container->addText("name", "Navigation name");
+		$container->addText("name", "Navigation name")->getControlPrototype()->onclick();
 		$container->addSelect("navigation_id", "Navigation parent")
 				->setItems($this->service->getCurrentList())
 				->setPrompt("root");
@@ -113,6 +114,7 @@ class ContentExtensionSubscriber implements EventSubscriber {
 		$menu = $this->repository->findOneBy(
 				array(
 					"page" => $page->id,
+					"type" => NavigationEntity::TYPE_PAGE
 				)
 		);
 		if ($menu) {
@@ -126,23 +128,6 @@ class ContentExtensionSubscriber implements EventSubscriber {
 			}
 		} else {
 			$container["use"]->setValue(false);
-		}
-	}
-
-
-
-	public function onRemove(\Venne\ContentExtension\EventArgs $args)
-	{
-		$form = $args->form;
-		$page = $args->page;
-
-		$menu = $this->repository->findOneBy(
-				array(
-					"page" => $page->id,
-				)
-		);
-		if ($menu) {
-			$this->service->delete($menu);
 		}
 	}
 

@@ -11,13 +11,17 @@
 
 namespace App\NavigationModule;
 
-use \Venne\Developer\Module\Service\IRouteService;
-use \App\CoreModule\NavigationEntity;
+use Venne\Developer\Module\Service\IRouteService;
+use App\CoreModule\NavigationEntity;
+use Nette\DI\ContainerBuilder;
 
 /**
  * @author Josef Kříž
  */
 class Module extends \Venne\Module\AutoModule {
+
+
+	const CACHE_TAG = "App\NavigationModule";
 
 
 
@@ -40,42 +44,47 @@ class Module extends \Venne\Module\AutoModule {
 		return "2.0";
 	}
 
-	public function configure(\Venne\DI\Container $container, \App\CoreModule\CmsManager $manager)
+
+
+	public function loadConfiguration(ContainerBuilder $container, array $config)
+	{
+		$container->addDefinition("navigationControl")
+				->setClass("App\NavigationModule\NavigationControl")
+				->setShared(false)
+				->setAutowired(false)
+				->addTag("control");
+
+		$container->addDefinition("navigationFormControl")
+				->setParameters(array("entity"))
+				->setClass("App\NavigationModule\NavigationForm", array("@entityFormMapper", "@entityManager", "@scannerService", "%entity%"))
+				->setShared(false)
+				->setAutowired(false)
+				->addTag("control");
+
+		$container->addDefinition("navigationService")
+				->setClass("App\NavigationModule\NavigationService", array("@container", "navigation", "@entityManager"))
+				->addTag("service");
+
+		$container->addDefinition("navigationRepository")
+				->setClass("Venne\Doctrine\ORM\BaseRepository")
+				->setFactory("@entityManager::getRepository", array("\\App\\NavigationModule\\NavigationEntity"))
+				->addTag("repository")
+				->setAutowired(false);
+	}
+
+
+
+	public function configure(\Nette\DI\Container $container, \App\CoreModule\CmsManager $manager)
 	{
 		parent::configure($container, $manager);
-		$manager->addService("navigation", function() use ($container) {
-					return new NavigationService($container, "navigation", $container->doctrineContainer->entityManager);
-				});
-		$manager->addRepository("navigation", function() use ($container) {
-					return $container->doctrineContainer->entityManager->getRepository("\\App\\NavigationModule\\NavigationEntity");
-				});
+
 		$manager->addEventListener("navigationListener", function() use ($container) {
 					return new NavigationListener($container->cacheStorage);
 				}, array("listener")
 		);
 		$manager->addEventSubscriber(new ContentExtensionSubscriber($container->navigationService, $container->navigationRepository));
 		$manager->addEventListener(array(\App\CoreModule\Events::onAdminMenu), $this);
-		
-		$manager->addElement("navigation", function(){
-			return new NavigationElement;
-		});
-	}
-
-
-
-
-
-	public function setSubscribers(\Venne\DI\Container $container, \Doctrine\Common\EventManager $evm)
-	{
-		parent::setSubscribers($container, $evm);
-		$evm->addEventSubscriber(new ContentExtensionSubscriber($container->navigationService, $container->navigationRepository));
-	}
-
-
-
-	public function setListeners(\Venne\DI\Container $container, \Doctrine\Common\EventManager $evm)
-	{
-		$evm->addEventListener(array(\App\CoreModule\Events::onAdminMenu), $this);
+		$manager->addEventSubscriber(new NavigationSubscriber($container->cacheStorage));
 	}
 
 
@@ -86,14 +95,6 @@ class Module extends \Venne\Module\AutoModule {
 		$nav->setLink(":Navigation:Admin:Default:");
 		$nav->setMask(":Navigation:Admin:*:*");
 		$menu->addNavigation($nav);
-	}
-
-
-
-	public function setHooks(\Venne\DI\Container $container, \App\HookModule\Manager $manager)
-	{
-		//$manager->addHook("admin\\menu", \callback($container->navigationService, "hookAdminMenu"));
-		$manager->addHookExtension(\App\HookModule\Manager::EXTENSION_CONTENT, new \App\NavigationModule\NavigationContentExtension($container->navigationService));
 	}
 
 }

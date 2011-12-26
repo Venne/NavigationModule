@@ -8,30 +8,15 @@
     jQuery(document).ready(function() {
 
 		function setVisibility(){
-			if($("#frmformMenu-type").val() == "dir"){
-				$("#par0").hide();
-				$("#par1").hide();
-				$("#par3").hide();
-				$("#par2").hide();
-				$("#par4").hide();
-				$("#linkto").hide();
-				$("#frmformMenu-url").parent().parent().hide();
-			}else if($("#frmformMenu-type").val() == "link"){
-				$("#par0").show();
-				$("#par1").show();
-				$("#par3").show();
-				$("#par2").show();
-				$("#par4").show();
-				$("#linkto").show();
-				$("#frmformMenu-url").parent().parent().hide();
-			}else{
+			$("#frmformMenu-url").parent().parent().hide();
+				$("#frmformMenu-page").parent().parent().hide();
+				$("#frmformMenu-link").parent().parent().hide();
+			if($("#frmformMenu-type").val() == "url"){
 				$("#frmformMenu-url").parent().parent().show();
-				$("#par0").hide();
-				$("#par1").hide();
-				$("#par3").hide();
-				$("#par2").hide();
-				$("#par4").hide();
-				$("#linkto").hide();
+			}else if($("#frmformMenu-type").val() == "page"){	
+				$("#frmformMenu-page").parent().parent().show();
+			}else if($("#frmformMenu-type").val() == "link"){	
+				$("#frmformMenu-link").parent().parent().show();
 			}
 		}
 
