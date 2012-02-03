@@ -1,25 +1,24 @@
 <?php
 
 /**
- * Venne:CMS (version 2.0-dev released on $WCDATE$)
+ * This file is part of the Venne:CMS (https://github.com/Venne)
  *
- * Copyright (c) 2011 Josef Kříž pepakriz@gmail.com
+ * Copyright (c) 2011, 2012 Josef Kříž (http://www.josef-kriz.cz)
  *
  * For the full copyright and license information, please view
  * the file license.txt that was distributed with this source code.
  */
 
-namespace App\NavigationModule;
+namespace App\NavigationModule\Entities;
 
-use Venne\ORM\Column;
 use Venne\Doctrine\ORM\BaseEntity;
 use App\CoreModule\PageEntity;
 
 /**
- * @author Josef Kříž
+ * @author Josef Kříž <pepakriz@gmail.com>
  * @Entity(repositoryClass="\Venne\Doctrine\ORM\BaseRepository")
  * @Table(name="navigation")
- * 
+ *
  * @property NavigationEntity $childrens
  * @property NavigationEntity $parent
  * @property bool $active
@@ -29,36 +28,18 @@ class NavigationEntity extends BaseEntity {
 
 
 	const TYPE_URL = "url";
-	const TYPE_DIR = "dir";
-	const TYPE_PAGE = "page";
-	const TYPE_LINK = "link";
 
+	const TYPE_DIR = "dir";
+
+	const TYPE_PAGE = "page";
+
+	const TYPE_LINK = "link";
 
 	/** @var string */
 	protected $_link;
 
 	/** @var bool */
-	protected $_active;
-
-
-
-	public function __construct($name = "")
-	{
-		$this->name = $name;
-		$this->active = true;
-		$this->order = 0;
-		$this->url = "";
-		$this->link = "";
-		$this->type = self::TYPE_LINK;
-		$this->childrens = new \Doctrine\Common\Collections\ArrayCollection();
-	}
-
-
-
-	public function __toString()
-	{
-		return $this->name;
-	}
+	protected $_active = false;
 
 	/**
 	 * @Column(type="integer", name="`order`")
@@ -66,18 +47,18 @@ class NavigationEntity extends BaseEntity {
 	protected $order;
 
 	/**
-	 *  @Column(type="boolean")
+	 * @Column(type="boolean")
 	 */
 	protected $active;
 
 	/**
-	 * @OneToMany(targetEntity="navigationEntity", mappedBy="parent")
+	 * @OneToMany(targetEntity="NavigationEntity", mappedBy="parent")
 	 * @OrderBy({"order" = "ASC"})
 	 */
 	protected $childrens;
 
 	/**
-	 * @ManyToOne(targetEntity="navigationEntity", inversedBy="id")
+	 * @ManyToOne(targetEntity="NavigationEntity", inversedBy="id")
 	 * @JoinColumn(name="navigation_id", referencedColumnName="id", onDelete="CASCADE")
 	 */
 	protected $parent;
@@ -95,16 +76,64 @@ class NavigationEntity extends BaseEntity {
 	protected $url;
 
 	/**
-	 * @var \App\CoreModule\PageEntity
-	 * @ManyToOne(targetEntity="\App\CoreModule\PageEntity")
+	 * @var \App\CoreModule\Entities\PageEntity
+	 * @ManyToOne(targetEntity="\App\CoreModule\Entities\PageEntity", cascade={"persist"})
 	 * @JoinColumn(name="page_id", referencedColumnName="id", onDelete="CASCADE")
 	 */
 	protected $page;
 
+	/**
+	 * @OneToMany(targetEntity="TranslationEntity", mappedBy="navigation", cascade={"persist", "remove", "detach"})
+	 */
+	protected $translations;
+
+
+
+	public function __construct($name = "")
+	{
+		$this->name = $name;
+		$this->active = true;
+		$this->order = 0;
+		$this->url = "";
+		$this->link = "";
+		$this->type = self::TYPE_LINK;
+		$this->childrens = new \Doctrine\Common\Collections\ArrayCollection();
+		$this->translations = new \Doctrine\Common\Collections\ArrayCollection();
+	}
+
+
+
+	public function addTranslation()
+	{
+		$entity = new TranslationEntity($this);
+		$this->translations->add($entity);
+		return $entity;
+	}
+
+
+
+	public function __toString()
+	{
+		return $this->name;
+	}
+
+
+
+	public function translatedNameByAlias($alias)
+	{
+		foreach ($this->translations as $entity) {
+			if ($entity->language && $entity->language->alias == $alias) {
+				return $entity->translation;
+			}
+		}
+
+		return $this->name;
+	}
+
 
 
 	/**
-	 * @return string 
+	 * @return string
 	 */
 	public function getName()
 	{
@@ -114,31 +143,11 @@ class NavigationEntity extends BaseEntity {
 
 
 	/**
-	 * @param string $name 
+	 * @param string $name
 	 */
 	public function setName($name)
 	{
 		$this->name = $name;
-	}
-
-
-
-	/**
-	 * @return string 
-	 */
-	public function getActive()
-	{
-		return $this->active;
-	}
-
-
-
-	/**
-	 * @param string $active 
-	 */
-	public function setActive($active)
-	{
-		$this->active = $active;
 	}
 
 
@@ -154,7 +163,7 @@ class NavigationEntity extends BaseEntity {
 
 
 	/**
-	 * @param \App\StaModule\NavigationEntity $childrens 
+	 * @param \App\NavigationModule\Entities\NavigationEntity $childrens
 	 */
 	public function addChildren($childrens)
 	{
@@ -174,7 +183,7 @@ class NavigationEntity extends BaseEntity {
 
 
 	/**
-	 * @param NavigationEntity $parent 
+	 * @param NavigationEntity $parent
 	 */
 	public function setParent($parent)
 	{
@@ -253,35 +262,48 @@ class NavigationEntity extends BaseEntity {
 
 
 
+	public function getTranslations()
+	{
+		return $this->translations;
+	}
+
+
+
+	public function setTranslations($translations)
+	{
+		$this->translations = $translations;
+	}
+
+
+
+	public function setActive($active)
+	{
+		$this->_active = (bool)$active;
+
+		if ($this->parent) {
+			$this->parent->setActive($active);
+		}
+	}
+
+
+
 	/**
 	 * Is link active
-	 * @param \Nette\Application\UI\Presenter $presenter
+	 *
 	 * @return bool
 	 */
-	public function isActive(\Nette\Application\UI\Presenter $presenter)
+	public function getActive()
 	{
-		if ($this->_active === NULL) {
-			if ($presenter->isUrlCurrent($this->makeLink($presenter))) {
-				$this->_active = true;
-			} else {
-				foreach ($this->childrens as $item) {
-					if ($item->isActive($presenter)) {
-						$this->_active = true;
-						break;
-					}
-				}
-				$this->_active = $this->_active === NULL ? false : true;
-			}
-		}
 		return $this->_active;
 	}
 
 
 
 	/**
-	 * Make link
+	 * Make link.
+	 *
 	 * @param \Nette\Application\UI\Presenter $presenter
-	 * @return type 
+	 * @return string
 	 */
 	public function makeLink(\Nette\Application\UI\Presenter $presenter)
 	{
@@ -296,12 +318,13 @@ class NavigationEntity extends BaseEntity {
 					$this->_link = $presenter->template->basePath;
 				}
 			} else if ($this->type == self::TYPE_PAGE) {
-				$this->_link = $presenter->link(":" . $this->page->type, array("url" => $this->page->url));
+				$page = $this->page->getPageWithLanguageAlias($presenter->lang);
+				$this->_link = $page ? $presenter->link(":" . $page->type, array("url" => $page->url)) : false;
 			} else if ($this->type == self::TYPE_LINK) {
 				$this->_link = $presenter->link($this->link);
 			}
 		}
-		return $this->_link;
+		return ($this->_link ? : NULL);
 	}
 
 }

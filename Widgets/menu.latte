@@ -1,0 +1,38 @@
+{*cache $path, $lang, $startDepth, $maxDepth, $followActive, tags => ['App\NavigationModule']*}
+
+{dump "generuju menu"}
+{var items=>$control->getItems()}
+{var sub=>0}
+
+{block #menu}
+<ul>
+	{foreach $items as $item}
+	
+		{var active=>$item->getActive()}
+		{var url=>$item->makeLink($presenter)}
+	
+		{if $sub < $startDepth}
+			{if $item->childrens->count() > 0 && ($active || !$followActive)}
+				{include #menu, "items"=>$item->childrens, "sub"=>($sub+1)}
+			{/if}
+		{else}
+			{if $url}
+			<li {if $active}class="active"{/if}>
+				{if $active}<span>{/if}
+					<a href="{$url}" {if $active}class="active"{/if}>{$item->translatedNameByAlias($lang)}</a>
+				{if $active}</span>{/if}
+
+				{if ($sub < ($startDepth + $maxDepth - 1)) && ($active || !$followActive)}
+				{include #menu, "items"=>$item->childrens, "sub"=>($sub+1)}
+				{/if}
+			</li>
+			{/if}
+		{/if}
+
+	{/foreach}
+</ul>
+{/block}
+
+{*/cache*}
+
+

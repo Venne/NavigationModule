@@ -1,21 +1,21 @@
 <?php
 
 /**
- * Venne:CMS (version 2.0-dev released on $WCDATE$)
+ * This file is part of the Venne:CMS (https://github.com/Venne)
  *
- * Copyright (c) 2011 Josef Kříž pepakriz@gmail.com
+ * Copyright (c) 2011, 2012 Josef Kříž (http://www.josef-kriz.cz)
  *
  * For the full copyright and license information, please view
  * the file license.txt that was distributed with this source code.
  */
 
-namespace App\NavigationModule;
+namespace App\NavigationModule\Services;
 
 use Venne;
 use Nette\Object;
 
 /**
- * @author Josef Kříž
+ * @author Josef Kříž <pepakriz@gmail.com>
  */
 class NavigationService extends Object {
 
@@ -38,12 +38,11 @@ class NavigationService extends Object {
 
 
 	/**
-	 * @inject(context, entityManager)
 	 * @param \$container->parameters\DI\Container $context
 	 * @param type $moduleName
-	 * @param \Doctrine\ORM\EntityManager $entityManager 
+	 * @param \Doctrine\ORM\EntityManager $entityManager
 	 */
-	public function __construct(\Nette\DI\Container $context, $moduleName, \Doctrine\ORM\EntityManager $entityManager)
+	public function __construct(\Nette\DI\Container $context, \Doctrine\ORM\EntityManager $entityManager)
 	{
 		$this->context = $context;
 		$this->entityManager = $entityManager;
@@ -52,11 +51,11 @@ class NavigationService extends Object {
 
 
 	/**
-	 * @return \Venne\Doctrine\ORM\BaseRepository 
+	 * @return \Venne\Doctrine\ORM\BaseRepository
 	 */
 	protected function getRepository()
 	{
-		return $this->entityManager->getRepository("\\App\\NavigationModule\\NavigationEntity");
+		return $this->entityManager->getRepository("\\App\\NavigationModule\\Entities\NavigationEntity");
 	}
 
 
@@ -86,6 +85,7 @@ class NavigationService extends Object {
 	}
 
 
+
 	/**
 	 * @param \Nette\Http\Request $httpRequest
 	 * @param bool $without
@@ -98,13 +98,8 @@ class NavigationService extends Object {
 		$em = $this->getEntityManager();
 		$data = array();
 		$text = "";
-		if (!$depend)
-			$menu = $em->createQuery('SELECT u FROM \App\NavigationModule\NavigationEntity u WHERE u.parent IS NULL')
-					->getResult();
-		else
-			$menu = $em->createQuery('SELECT u FROM \App\NavigationModule\NavigationEntity u WHERE u.parent= :depend ')
-					->setParameters(array("depend" => $depend))
-					->getResult();
+		if (!$depend) $menu = $em->createQuery('SELECT u FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent IS NULL')->getResult(); else
+			$menu = $em->createQuery('SELECT u FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent= :depend ')->setParameters(array("depend" => $depend))->getResult();
 		for ($i = 0; $i <= $layer; $i++) {
 			$text .= "--";
 		}
@@ -130,12 +125,8 @@ class NavigationService extends Object {
 		$em = $this->getEntityManager();
 		$data = array();
 		$text = "";
-		if (!$depend)
-			$menu = $em->createQuery('SELECT u FROM \App\NavigationModule\NavigationEntity u WHERE u.parent IS NULL')->getResult();
-		else
-			$menu = $em->createQuery('SELECT u FROM \App\NavigationModule\NavigationEntity u WHERE u.parent= :depend ')
-					->setParameters(array("depend" => $depend))
-					->getResult();
+		if (!$depend) $menu = $em->createQuery('SELECT u FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent IS NULL')->getResult(); else
+			$menu = $em->createQuery('SELECT u FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent= :depend ')->setParameters(array("depend" => $depend))->getResult();
 		for ($i = 0; $i <= $layer; $i++) {
 			$text .= "--";
 		}
@@ -152,6 +143,7 @@ class NavigationService extends Object {
 
 	/**
 	 * Save structure
+	 *
 	 * @param array $data
 	 */
 	public function setStructure($data)
@@ -159,7 +151,7 @@ class NavigationService extends Object {
 		foreach ($data as $item) {
 			foreach ($item as $item2) {
 				$entity = $this->getRepository()->find($item2["id"]);
-				$entity->parent = $this->getRepository()->find($item2["navigation_id"]);
+				$entity->parent = $item2["navigation_id"] ? $this->getRepository()->find($item2["navigation_id"]) : NULL;
 				$entity->order = $item2["order"];
 			}
 		}
@@ -170,15 +162,15 @@ class NavigationService extends Object {
 
 	/**
 	 * @param integer $website_id
-	 * @param integer $parent_id 
+	 * @param integer $parent_id
 	 * @return integer
 	 */
 	public function getOrderValue($parent_id = NULL)
 	{
 		if ($parent_id) {
-			$query = $this->getEntityManager()->createQuery('SELECT MAX(u.order) FROM \App\NavigationModule\NavigationEntity u WHERE u.parent = ?2')->setParameter(2, $parent_id);
+			$query = $this->getEntityManager()->createQuery('SELECT MAX(u.order) FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent = ?2')->setParameter(2, $parent_id);
 		} else {
-			$query = $this->getEntityManager()->createQuery('SELECT MAX(u.order) FROM \App\NavigationModule\NavigationEntity u WHERE u.parent is NULL');
+			$query = $this->getEntityManager()->createQuery('SELECT MAX(u.order) FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent is NULL');
 		}
 		return $query->getSingleScalarResult() + 1;
 	}
@@ -244,7 +236,7 @@ class NavigationService extends Object {
 
 	public function delete(\Venne\Doctrine\ORM\BaseEntity $entity, $withoutFlush = false)
 	{
-		$query = $this->getEntityManager()->createQuery('SELECT u FROM \App\NavigationModule\NavigationEntity u WHERE u.parent = ?1 AND u.order > ?2')->setParameter(1, isset($entity->parent->id) ? $entity->parent->id : NULL)->setParameter(2, $entity->order);
+		$query = $this->getEntityManager()->createQuery('SELECT u FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent = ?1 AND u.order > ?2')->setParameter(1, isset($entity->parent->id) ? $entity->parent->id : NULL)->setParameter(2, $entity->order);
 		foreach ($query->getResult() as $item) {
 			$item->order = $item->order - 1;
 		}

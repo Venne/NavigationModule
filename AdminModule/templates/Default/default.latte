@@ -1,6 +1,6 @@
 {block content}
 
-{js /js/jquery.ui.nestedSortable.js}
+{js @CoreModule/js/jquery.ui.nestedSortable.js}
 
 {include "../head.latte"}
 
@@ -28,6 +28,7 @@
 {form form class=>venne-form}
 
 
+{var dep=>NULL}
 {block #menu}
 <ul{if $dep == ""} class="sortable"{/if}>
 		{if $menu}

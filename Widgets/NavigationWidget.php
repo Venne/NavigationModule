@@ -1,26 +1,34 @@
 <?php
 
 /**
- * Venne:CMS (version 2.0-dev released on $WCDATE$)
+ * This file is part of the Venne:CMS (https://github.com/Venne)
  *
- * Copyright (c) 2011 Josef Kříž pepakriz@gmail.com
+ * Copyright (c) 2011, 2012 Josef Kříž (http://www.josef-kriz.cz)
  *
  * For the full copyright and license information, please view
  * the file license.txt that was distributed with this source code.
  */
 
-namespace App\NavigationModule;
+namespace App\NavigationModule\Widgets;
+
+use Venne;
+use Venne\Application\UI\Widget;
 
 /**
- * @author Josef Kříž
+ * @author Josef Kříž <pepakriz@gmail.com>
  */
-class NavigationControl extends \Venne\Application\UI\Control {
+class NavigationWidget extends Widget {
+
+
+	protected $description = "show navigation";
 
 
 
 	public function startup()
 	{
 		parent::startup();
+		$this->template->path = $this->presenter->context->httpRequest->url->path;
+		$this->template->lang = $this->presenter->lang;
 		$this->template->startDepth = 0;
 		$this->template->followActive = false;
 	}
@@ -75,7 +83,25 @@ class NavigationControl extends \Venne\Application\UI\Control {
 
 	public function getItems()
 	{
-		return $this->presenter->context->navigationRepository->findBy(array("parent" => NULL), array("order"=>"asc"));
+		$repository = $this->presenter->context->navigation->navigationRepository;
+
+		if($this->presenter instanceof \Venne\Application\UI\PagePresenter){
+			$page = $this->presenter->page->page;
+			$entity = $repository->findOneBy(array("page"=>$page->id));
+			while(!$entity){
+				$page = $page->parent;
+				if(!$page || $page->url == ""){
+					break;
+				}
+				$entity = $repository->findOneBy(array("page"=>$page->id));
+			}
+
+			if($entity){
+				$entity->setActive(true);
+			}
+		}
+
+		return $repository->findBy(array("parent" => NULL), array("order" => "asc"));
 	}
 
 
