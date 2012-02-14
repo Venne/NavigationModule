@@ -12,16 +12,13 @@
 namespace App\NavigationModule\Widgets;
 
 use Venne;
-use Venne\Application\UI\Widget;
+use Venne\Application\UI\Control;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  */
-class NavigationWidget extends Widget {
-
-
-	protected $description = "show navigation";
-
+class NavigationWidget extends Control
+{
 
 
 	public function startup()
@@ -85,18 +82,18 @@ class NavigationWidget extends Widget {
 	{
 		$repository = $this->presenter->context->navigation->navigationRepository;
 
-		if($this->presenter instanceof \Venne\Application\UI\PagePresenter){
+		if ($this->presenter instanceof \Venne\Application\UI\PagePresenter) {
 			$page = $this->presenter->page->page;
-			$entity = $repository->findOneBy(array("page"=>$page->id));
-			while(!$entity){
+			$entity = $repository->findOneBy(array("page" => $page->id));
+			while (!$entity) {
 				$page = $page->parent;
-				if(!$page || $page->url == ""){
+				if (!$page || $page->url == "") {
 					break;
 				}
-				$entity = $repository->findOneBy(array("page"=>$page->id));
+				$entity = $repository->findOneBy(array("page" => $page->id));
 			}
 
-			if($entity){
+			if ($entity) {
 				$entity->setActive(true);
 			}
 		}
