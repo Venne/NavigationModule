@@ -82,7 +82,7 @@ class NavigationWidget extends Control
 	{
 		$repository = $this->presenter->context->navigation->navigationRepository;
 
-		if ($this->presenter instanceof \Venne\Application\UI\PagePresenter) {
+		if ($this->presenter instanceof \App\CoreModule\Presenters\PagePresenter) {
 			$page = $this->presenter->page->page;
 			$entity = $repository->findOneBy(array("page" => $page->id));
 			while (!$entity) {

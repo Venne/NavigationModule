@@ -16,6 +16,7 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use App\NavigationModule\Entities\NavigationEntity;
 use App\NavigationModule\Entities\TranslationEntity;
+use App\NavigationModule\Entities\PageEntity;
 use Nette\Caching\Storages\FileStorage;
 use App\NavigationModule\Module;
 use Nette\DI\Container;
@@ -52,7 +53,7 @@ class DoctrineSubscriber implements EventSubscriber {
 
 		$entities = $uow->getScheduledEntityInsertions() + $uow->getScheduledEntityUpdates() + $uow->getScheduledEntityDeletions();
 		foreach ($entities AS $entity) {
-			if ($entity instanceof NavigationEntity || $entity instanceof TranslationEntity) {
+			if ($entity instanceof NavigationEntity || $entity instanceof TranslationEntity || $entity instanceof PageEntity) {
 				$this->cache->clean(array(Cache::TAGS => array(Module::CACHE_TAG),));
 
 				break;

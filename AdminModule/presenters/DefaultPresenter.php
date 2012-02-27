@@ -19,7 +19,7 @@ use Venne;
  *
  * @secured
  */
-class DefaultPresenter extends \Venne\Application\UI\AdminPresenter {
+class DefaultPresenter extends \App\CoreModule\Presenters\AdminPresenter {
 
 
 	/** @persistent */
