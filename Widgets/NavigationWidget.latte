@@ -1,3 +1,13 @@
+{if $type == "path"}
+	{var items=>$control->getPaths()}
+
+    {foreach $items as $item}
+    	{if !$iterator->isFirst()} » {/if}
+    	<span class="item"><a href="{$item["url"]}">{$item["name"]}</a></span>
+    {/foreach}
+
+{else}
+
 {cache $path, $lang, $startDepth, $maxDepth, $followActive, tags => ['App\NavigationModule']}
 
 {dump "generuju menu"}
@@ -34,5 +44,7 @@
 {/block}
 
 {/cache}
+
+{/if}
 
 

@@ -28,6 +28,7 @@ class NavigationWidget extends Control
 		$this->template->lang = $this->presenter->lang;
 		$this->template->startDepth = 0;
 		$this->template->followActive = false;
+		$this->template->type = "navigation";
 	}
 
 
@@ -43,37 +44,42 @@ class NavigationWidget extends Control
 
 
 
-	protected function viewMain()
+	public function renderMain()
 	{
-		$this->view = "menu";
 		$this->template->maxDepth = 1;
 		$this->updateParams();
+
+		parent::render();
 	}
 
 
 
-	protected function viewTree()
+	public function renderTree()
 	{
-		$this->view = "menu";
 		$this->template->maxDepth = 10;
 		$this->updateParams();
+
+		parent::render();
 	}
 
 
 
-	protected function viewSubmain()
+	public function renderSubmain()
 	{
-		$this->view = "menu";
 		$this->template->startDepth = 1;
 		$this->template->maxDepth = 1;
 		$this->updateParams();
+
+		parent::render();
 	}
 
 
 
-	protected function viewPath()
+	public function renderPath()
 	{
 		$this->template->type = "path";
+
+		parent::render();
 	}
 
 

@@ -48,16 +48,16 @@ class NavigationSubscriber implements EventSubscriber
 	public function getSubscribedEvents()
 	{
 		return array(
-			Events::onCreate,
-			Events::onLoad,
-			Events::onSave,
-			Events::onRemove
+			Events::onContentExtensionCreate,
+			Events::onContentExtensionLoad,
+			Events::onContentExtensionSave,
+			Events::onContentExtensionRemove
 		);
 	}
 
 
 
-	public function onSave(\Venne\ContentExtension\EventArgs $args)
+	public function onContentExtensionSave(\Venne\ContentExtension\EventArgs $args)
 	{
 		$form = $args->form;
 		$page = $args->page;
@@ -93,7 +93,7 @@ class NavigationSubscriber implements EventSubscriber
 
 
 
-	public function onCreate(\Venne\ContentExtension\EventArgs $args)
+	public function onContentExtensionCreate(\Venne\ContentExtension\EventArgs $args)
 	{
 		$form = $args->form;
 
@@ -110,7 +110,7 @@ class NavigationSubscriber implements EventSubscriber
 
 
 
-	public function onLoad(\Venne\ContentExtension\EventArgs $args)
+	public function onContentExtensionLoad(\Venne\ContentExtension\EventArgs $args)
 	{
 		$form = $args->form;
 		$page = $args->page;
