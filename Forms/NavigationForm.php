@@ -9,7 +9,7 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace App\NavigationModule\Forms;
+namespace NavigationModule\Forms;
 
 use Nette\Forms\Container;
 use Nette\Forms\Controls\SubmitButton;
@@ -20,7 +20,7 @@ use Nette\Forms\Controls\SubmitButton;
 class NavigationForm extends \Venne\Forms\EntityForm {
 
 
-	/** @var \App\CoreModule\ScannerService */
+	/** @var \CoreModule\ScannerService */
 	protected $scannerService;
 
 
@@ -29,7 +29,7 @@ class NavigationForm extends \Venne\Forms\EntityForm {
 	 * @param object $entity
 	 * @param Mapping\EntityFormMapper $mapper
 	 */
-	public function __construct(\Venne\Forms\Mapping\EntityFormMapper $mapper, \Doctrine\ORM\EntityManager $entityManager, \App\CoreModule\Services\ScannerService $scannerService)
+	public function __construct(\Venne\Forms\Mapping\EntityFormMapper $mapper, \Doctrine\ORM\EntityManager $entityManager, \CoreModule\Services\ScannerService $scannerService)
 	{
 		$this->scannerService = $scannerService;
 		parent::__construct($mapper, $entityManager);

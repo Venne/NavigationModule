@@ -9,7 +9,7 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace App\NavigationModule\Services;
+namespace NavigationModule\Services;
 
 use Venne;
 use Nette\Object;
@@ -42,10 +42,10 @@ class NavigationService extends Object {
 	 * @param type $moduleName
 	 * @param \Doctrine\ORM\EntityManager $entityManager
 	 */
-	public function __construct(\Nette\DI\Container $context, \Doctrine\ORM\EntityManager $entityManager)
+	public function __construct(\Nette\DI\Container $context)
 	{
 		$this->context = $context;
-		$this->entityManager = $entityManager;
+		$this->entityManager = $context->entityManager;
 	}
 
 
@@ -55,7 +55,7 @@ class NavigationService extends Object {
 	 */
 	protected function getRepository()
 	{
-		return $this->entityManager->getRepository("\\App\\NavigationModule\\Entities\NavigationEntity");
+		return $this->entityManager->getRepository("\\\NavigationModule\\Entities\NavigationEntity");
 	}
 
 
@@ -98,8 +98,8 @@ class NavigationService extends Object {
 		$em = $this->getEntityManager();
 		$data = array();
 		$text = "";
-		if (!$depend) $menu = $em->createQuery('SELECT u FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent IS NULL')->getResult(); else
-			$menu = $em->createQuery('SELECT u FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent= :depend ')->setParameters(array("depend" => $depend))->getResult();
+		if (!$depend) $menu = $em->createQuery('SELECT u FROM \NavigationModule\Entities\NavigationEntity u WHERE u.parent IS NULL')->getResult(); else
+			$menu = $em->createQuery('SELECT u FROM \NavigationModule\Entities\NavigationEntity u WHERE u.parent= :depend ')->setParameters(array("depend" => $depend))->getResult();
 		for ($i = 0; $i <= $layer; $i++) {
 			$text .= "--";
 		}
@@ -125,8 +125,8 @@ class NavigationService extends Object {
 		$em = $this->getEntityManager();
 		$data = array();
 		$text = "";
-		if (!$depend) $menu = $em->createQuery('SELECT u FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent IS NULL')->getResult(); else
-			$menu = $em->createQuery('SELECT u FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent= :depend ')->setParameters(array("depend" => $depend))->getResult();
+		if (!$depend) $menu = $em->createQuery('SELECT u FROM \NavigationModule\Entities\NavigationEntity u WHERE u.parent IS NULL')->getResult(); else
+			$menu = $em->createQuery('SELECT u FROM \NavigationModule\Entities\NavigationEntity u WHERE u.parent= :depend ')->setParameters(array("depend" => $depend))->getResult();
 		for ($i = 0; $i <= $layer; $i++) {
 			$text .= "--";
 		}
@@ -168,9 +168,9 @@ class NavigationService extends Object {
 	public function getOrderValue($parent_id = NULL)
 	{
 		if ($parent_id) {
-			$query = $this->getEntityManager()->createQuery('SELECT MAX(u.order) FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent = ?2')->setParameter(2, $parent_id);
+			$query = $this->getEntityManager()->createQuery('SELECT MAX(u.order) FROM \NavigationModule\Entities\NavigationEntity u WHERE u.parent = ?2')->setParameter(2, $parent_id);
 		} else {
-			$query = $this->getEntityManager()->createQuery('SELECT MAX(u.order) FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent is NULL');
+			$query = $this->getEntityManager()->createQuery('SELECT MAX(u.order) FROM \NavigationModule\Entities\NavigationEntity u WHERE u.parent is NULL');
 		}
 		return $query->getSingleScalarResult() + 1;
 	}
@@ -205,7 +205,7 @@ class NavigationService extends Object {
 
 
 
-	public function updateModuleItem(\App\NavigationModule\NavigationEntity $menuEntity, $moduleName, $moduleItemId, $name, $parent_id, $paramsArray, $withoutFlush = false)
+	public function updateModuleItem(\NavigationModule\NavigationEntity $menuEntity, $moduleName, $moduleItemId, $name, $parent_id, $paramsArray, $withoutFlush = false)
 	{
 		$menuEntity->moduleName = $moduleName;
 		$menuEntity->moduleItemId = $moduleItemId;
@@ -236,7 +236,7 @@ class NavigationService extends Object {
 
 	public function delete(\Venne\Doctrine\ORM\BaseEntity $entity, $withoutFlush = false)
 	{
-		$query = $this->getEntityManager()->createQuery('SELECT u FROM \App\NavigationModule\Entities\NavigationEntity u WHERE u.parent = ?1 AND u.order > ?2')->setParameter(1, isset($entity->parent->id) ? $entity->parent->id : NULL)->setParameter(2, $entity->order);
+		$query = $this->getEntityManager()->createQuery('SELECT u FROM \NavigationModule\Entities\NavigationEntity u WHERE u.parent = ?1 AND u.order > ?2')->setParameter(1, isset($entity->parent->id) ? $entity->parent->id : NULL)->setParameter(2, $entity->order);
 		foreach ($query->getResult() as $item) {
 			$item->order = $item->order - 1;
 		}

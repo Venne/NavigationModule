@@ -9,10 +9,10 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace App\NavigationModule\Entities;
+namespace NavigationModule\Entities;
 
 use Venne\Doctrine\ORM\BaseEntity;
-use App\CoreModule\PageEntity;
+use CoreModule\PageEntity;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
@@ -76,8 +76,8 @@ class NavigationEntity extends BaseEntity {
 	protected $url;
 
 	/**
-	 * @var \App\CoreModule\Entities\PageEntity
-	 * @ManyToOne(targetEntity="\App\CoreModule\Entities\PageEntity", cascade={"persist"})
+	 * @var \CoreModule\Entities\PageEntity
+	 * @ManyToOne(targetEntity="\CoreModule\Entities\PageEntity", cascade={"persist"})
 	 * @JoinColumn(name="page_id", referencedColumnName="id", onDelete="CASCADE")
 	 */
 	protected $page;
@@ -163,7 +163,7 @@ class NavigationEntity extends BaseEntity {
 
 
 	/**
-	 * @param \App\NavigationModule\Entities\NavigationEntity $childrens
+	 * @param \NavigationModule\Entities\NavigationEntity $childrens
 	 */
 	public function addChildren($childrens)
 	{

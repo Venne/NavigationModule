@@ -8,14 +8,14 @@
 
 {else}
 
-{cache $path, $lang, $startDepth, $maxDepth, $followActive, tags => ['App\NavigationModule']}
+{*cache $path, $lang, $startDepth, $maxDepth, $followActive, tags => ['AppNavigationModule']*}
 
 {dump "generuju menu"}
 {var items=>$control->getItems()}
 {var sub=>0}
 
 {block #menu}
-<ul>
+<ul{if isset($args["class"])} class="{$args["class"]}"{/if}>
 	{foreach $items as $item}
 	
 		{var active=>$item->getActive()}
@@ -28,9 +28,7 @@
 		{else}
 			{if $url}
 			<li {if $active}class="active"{/if}>
-				{if $active}<span>{/if}
-					<a href="{$url}" {if $active}class="active"{/if}>{$item->translatedNameByAlias($lang)}</a>
-				{if $active}</span>{/if}
+				<a href="{$url}" {if $active}class="active"{/if}>{$item->translatedNameByAlias($lang)}</a>
 
 				{if ($sub < ($startDepth + $maxDepth - 1)) && ($active || !$followActive)}
 				{include #menu, "items"=>$item->childrens, "sub"=>($sub+1)}
@@ -43,7 +41,7 @@
 </ul>
 {/block}
 
-{/cache}
+{*/cache*}
 
 {/if}
 

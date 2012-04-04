@@ -10,7 +10,7 @@
  */
 
 
-namespace App\NavigationModule\AdminModule;
+namespace NavigationModule\AdminModule;
 
 use Venne;
 
@@ -19,7 +19,7 @@ use Venne;
  *
  * @secured
  */
-class DefaultPresenter extends \App\CoreModule\Presenters\AdminPresenter {
+class DefaultPresenter extends \CoreModule\Presenters\AdminPresenter {
 
 
 	/** @persistent */

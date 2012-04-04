@@ -9,7 +9,7 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace App\NavigationModule\Widgets;
+namespace NavigationModule\Widgets;
 
 use Venne;
 use Venne\Application\UI\Control;
@@ -44,8 +44,9 @@ class NavigationWidget extends Control
 
 
 
-	public function renderMain()
+	public function renderMain($args = NULL)
 	{
+		$this->template->args = $args;
 		$this->template->maxDepth = 1;
 		$this->updateParams();
 
@@ -88,7 +89,7 @@ class NavigationWidget extends Control
 	{
 		$repository = $this->presenter->context->navigation->navigationRepository;
 
-		if ($this->presenter instanceof \App\CoreModule\Presenters\PagePresenter) {
+		if ($this->presenter instanceof \CoreModule\Presenters\PagePresenter) {
 			$page = $this->presenter->page->page;
 			$entity = $repository->findOneBy(array("page" => $page->id));
 			while (!$entity) {

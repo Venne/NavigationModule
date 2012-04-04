@@ -9,12 +9,12 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace App\NavigationModule;
+namespace NavigationModule;
 
 use Nette\Config\Compiler;
 use Nette\Config\Configurator;
 use Nette\DI\Container;
-use App\CoreModule\NavigationEntity;
+use CoreModule\NavigationEntity;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
@@ -22,7 +22,7 @@ use App\CoreModule\NavigationEntity;
 class Module extends \Venne\Module\BaseModule {
 
 
-	const CACHE_TAG = "App\NavigationModule";
+	const CACHE_TAG = "AppNavigationModule";
 
 	/** @var string */
 	protected $version = "2.0";

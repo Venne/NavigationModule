@@ -9,7 +9,7 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace App\NavigationModule\Entities;
+namespace NavigationModule\Entities;
 
 use Venne\Doctrine\ORM\BaseEntity;
 
@@ -19,7 +19,7 @@ use Venne\Doctrine\ORM\BaseEntity;
  * @Table(name="navigationTranslation")
  *
  * @property NavigationEntity $navigation
- * @property \App\CoreModule\Entities\LanguageEntity $language
+ * @property \CoreModule\Entities\LanguageEntity $language
  * @property string $name
  */
 class TranslationEntity extends BaseEntity {
@@ -31,7 +31,7 @@ class TranslationEntity extends BaseEntity {
 	protected $navigation;
 
 	/**
-	 * @ManyToOne(targetEntity="\App\CoreModule\Entities\LanguageEntity")
+	 * @ManyToOne(targetEntity="\CoreModule\Entities\LanguageEntity")
 	 */
 	protected $language;
 

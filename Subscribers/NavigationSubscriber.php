@@ -9,12 +9,12 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace App\NavigationModule\Subscribers;
+namespace NavigationModule\Subscribers;
 
 use Doctrine\Common\EventSubscriber;
 use Venne\ContentExtension\Events;
 use Nette\DI\Container;
-use App\NavigationModule\Entities\NavigationEntity;
+use NavigationModule\Entities\NavigationEntity;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>

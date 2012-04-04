@@ -9,16 +9,16 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace App\NavigationModule\Subscribers;
+namespace NavigationModule\Subscribers;
 
 use Nette\Caching\Cache;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
-use App\NavigationModule\Entities\NavigationEntity;
-use App\NavigationModule\Entities\TranslationEntity;
-use App\NavigationModule\Entities\PageEntity;
+use NavigationModule\Entities\NavigationEntity;
+use NavigationModule\Entities\TranslationEntity;
+use NavigationModule\Entities\PageEntity;
 use Nette\Caching\Storages\FileStorage;
-use App\NavigationModule\Module;
+use NavigationModule\Module;
 use Nette\DI\Container;
 
 /**
