@@ -1,0 +1,17 @@
+{
+	"name": "venne/navigation-module",
+	"description": "Navigation module",
+	"keywords": ["cms", "nette", "venne", "module"],
+	"homepage": "https://github.com/Venne/NavigationModule",
+	"authors": [
+		{
+			"name": "Josef Kříž",
+			"homepage": "http://josef-kriz.cz"
+		}
+	],
+	"require": {
+		"php" : ">=5.3.2",
+		"venne/cms" : "dev-master",
+		"venne/coreModule" : "dev-master"
+	}
+}
