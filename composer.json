@@ -12,6 +12,6 @@
 	"require": {
 		"php" : ">=5.3.2",
 		"venne/cms" : "dev-master",
-		"venne/coreModule" : "dev-master"
+		"venne/core-module" : "dev-master"
 	}
 }
